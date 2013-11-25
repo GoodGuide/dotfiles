@@ -41,6 +41,10 @@ endif
 autocmd BufRead *_spec.rb syn keyword rubyRspec describe context it specify it_behaves_like it_should_behave_like before after setup subject its shared_examples_for shared_context let
 highlight def link rubyRspec Function
 
+" Setup folding for various file types
+au BufNewFile,BufReadPost,BufWritePost *.rb set foldmethod=indent foldignore=""
+set foldlevelstart=99
+
 " Format XML docs
 au FileType xml exe ":silent 1,$!xmllint --format --recover - 2>/dev/null"
 
@@ -93,7 +97,8 @@ inoremap kj <esc>
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " STATUS LINE
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-:set statusline=%<%f\ (%{&ft})\ %-4(%m%)%=%-19(%3l,%02c%03V%)
+set statusline=%<%f\ (%{&ft})\ %-4(%m%)%=%-19(%3l,%02c%03V%)
+set laststatus=2
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " RELATIVE NUMBER
