@@ -1,7 +1,11 @@
 [core]
   whitespace=fix,-indent-with-non-tab,trailing-space,cr-at-eol
   editor=vim
-	excludesfile = /root/.gitignore_global
+	excludesfile = ~/.gitignore_global
+  autocrlf = input
+
+[advice]
+  statusHints = no
 
 [push]
   default = current
@@ -9,7 +13,13 @@
 [pull]
   default = current
 
+[fetch]
+  recurseSubmodules = yes
+
 [color]
+  branch = auto
+  diff = auto
+  status = auto
   ui = auto
 
 [color "branch"]
@@ -30,21 +40,45 @@
   branch = green
 
 [merge]
-  tool = opendiff
   defaultToUpstream = true
   conflictStyle=diff3
 
 [alias]
-  s = status
+  a = add
+  aa = add -A
+  ae = add --edit
+  ap = add --patch
+  b = branch
+  br = branch
+  c = commit -v
+  ci = commit -v
+  co = checkout
+  com = checkout  master
+  d = diff --word-diff
+  dc = diff --cached
+  df = diff
+  dw = diff --word-diff
+  dwc = diff --word-diff --cached
+  f = fetch --all
+  fe = fetch --all
+  ff = merge --ff-only
   g = log --graph --decorate --pretty=oneline --abbrev-commit
   ga = log --graph --decorate --pretty=oneline --abbrev-commit --all
-  ci = commit
-  br = branch
-  co = checkout
-  df = diff
-  dc = diff --cached
-  ls = ls-files
   ign = ls-files -o -i --exclude-standard
-  ff = merge --ff-only
+  l = log
+  lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
+  ll = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
+  log-json = log --pretty=format:'\"%h\": {%n  \"commit\": \"%H\",%n  \"author\": \"%an <%ae>\",%n  \"date\": \"%ad\",%n  \"message\": \"%s\"%n}'
+  ls = ls-files
   mc = merge --no-ff
+  mt = mergetool
+  ps = push
+  rb = rebase
+  rbc = rebase --continue
+  rbi = rebase -i
+  rs = reset
+  s = status -sb
+  su = submodule update --init
 
+[include]
+  path = ~/.gitconfig.private ; include name/email/etc.
