@@ -1,0 +1,29 @@
+# Windows Dingleberries
+Thumbs.db
+
+# Mac OSX dingleberries
+.DS_Store
+.~lock.*
+
+# Kate editor
+.kateconfig
+*.kate-swp
+.project
+
+# SublimeText
+*.sublime-project
+*.sublime-workspace
+
+# RubyMine, etc
+atlassian-ide-plugin.xml
+.idea/
+*.iws
+
+# ctags config file
+.ctags
+.__ctags
+
+*.orig
+*.lck
+*~
+*.sassc
