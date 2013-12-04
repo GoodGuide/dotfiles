@@ -14,8 +14,12 @@ filetype off
 set rtp+=~/.vim/bundle/vundle/
 call vundle#rc()
 
-Bundle 'gmarik/vundle'
 
+Bundle 'gmarik/vundle'
+Bundle 'IndexedSearch'
+Bundle "vim-scripts/YankRing.vim"
+Bundle 'matchit.zip'
+Bundle 'vim-scripts/blockle.vim'
 Bundle 'tpope/vim-endwise'
 Bundle 'tpope/vim-git'
 Bundle 'tpope/vim-markdown'
@@ -35,6 +39,7 @@ Bundle 'wincent/Command-T'
 Bundle 'mileszs/ack.vim'
 Bundle 'scrooloose/syntastic'
 Bundle 'bitc/vim-bad-whitespace'
+Bundle 'ekalinin/Dockerfile.vim'
 Bundle 'christoomey/vim-tmux-navigator'
 Bundle 'benmills/vimux'
 

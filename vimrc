@@ -19,23 +19,45 @@ set tabstop=2
 set shiftwidth=2
 set softtabstop=2
 set title
+
+set wrap linebreak " soft-wrap
+set nolist " list disables linebreak
+set cpoptions+=n " use line-numbers column for wrap indicator
+let &showbreak="+++ " " wrap indicator
+
+" don't do auto-hard-wrapping, except for comments
+set formatoptions+=l " don't break long lines in insert mode
+" set formatoptions+=r " insert comment leader after <Enter> in insert mode
+set formatoptions+=n " recognize numbered lists and use for autoindent
+set formatoptions+=o " insert comment leader on 'o' or 'O'
+set formatoptions+=c " auto-wrap comments
+set formatoptions+=q " allow formatting comments with 'gq'
+set formatoptions+=j " remove comment leader in between joined lines
+set formatoptions-=t " don't use textwidth to auto-wrap text
+set textwidth=80 " wrap things at 80 chars
+
+" When a bracket is inserted, briefly jump to the matching one.  The
+" jump is only done if the match can be seen on the screen.  The time to
+" show the match can be set with 'matchtime'.
+set showmatch
+
 set backupdir=/tmp/
 set directory=/tmp/
+
 set t_Co=256
-"colorscheme vibrantink
 colorscheme railscasts
-"colorscheme vividchalk
-"colorscheme solarized
 
 " Set a dark background after colorscheme is loaded
 set background=dark
 
 " Show characters over 100 lines
 if exists('+colorcolumn')
-  set colorcolumn=80
-else
-  au BufWinEnter * let w:m2=matchadd('ErrorMsg', '\%>100v.\+', -1)
+  set colorcolumn=80,100
 endif
+
+" highlight current line
+set cursorline
+autocmd ColorScheme * hi CursorLine ctermbg=234
 
 " Syntax highlighting for all spec files
 autocmd BufRead *_spec.rb syn keyword rubyRspec describe context it specify it_behaves_like it_should_behave_like before after setup subject its shared_examples_for shared_context let
@@ -72,7 +94,7 @@ let mapleader=" "
 nnoremap <CR> :nohlsearch<cr>
 
 " Save with leader-w
-nmap <leader>w :w<cr>
+nmap <leader>w :wa<cr>
 
 " Switch between files with leader-leader
 nnoremap <leader><leader> <c-^>
@@ -104,49 +126,80 @@ set laststatus=2
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " RELATIVE NUMBER
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-set relativenumber
-
-" Toggle relative number with Ctrl-n
-function! NumberToggle()
-  if(&relativenumber == 1)
-    set number
-  else
-    set relativenumber
-  endif
-endfunc
-
-nnoremap <C-n> :call NumberToggle()<cr>
-
-" Switch to absolute line numbers whenever Vim loses focus, since we don’t
-"   really care about the relative line numbers unless we’re moving around
-autocmd FocusLost * :set number
-autocmd FocusGained * :set relativenumber
-
-" Use absolute line numbers when we’re in insert mode
-"   and relative numbers when we’re in normal mode
-autocmd InsertEnter * :set number
-autocmd InsertLeave * :set relativenumber
-
-" Highlight cursor line in normal mode
-set cursorline
-autocmd InsertEnter * set nocursorline
-autocmd InsertLeave * set cursorline
+" Absolute line numbers in insert mode, and relative in normal mode
+set number relativenumber
+autocmd InsertEnter * :set number norelativenumber
+autocmd InsertLeave * :set number relativenumber
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " COMMAND-T MAPPINGS
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+let g:CommandTTagIncludeFilenames=1
+let g:CommandTMatchWindowReverse=1
+
 " Open files with <leader>f
-map <leader>t :CommandTFlush<cr>\|:CommandT<cr>
+map <leader>t :CommandT<cr>
 " Open files, limited to the directory of the current file, with <leader>gf
 " This requires the %% mapping found below.
 map <leader>gt :CommandTFlush<cr>\|:CommandT %%<cr>
 cnoremap %% <C-R>=expand('%:h').'/'<cr>
+
+" Syntastic {
+  let g:syntastic_enable_signs=1
+  let g:syntastic_quiet_warnings=0
+  let g:syntastic_ruby_checkers=['mri', 'rubocop']
+" }
+
+" YankRing {
+  " Open Show yank ring buffer
+  nnoremap <Leader>y :YRShow<CR>
+" }
+
+" Commentary {
+  nmap <leader>/ <plug>CommentaryLine<CR>
+  vmap <leader>/ <plug>Commentary<CR>
+" }
+
+" Fugitve {
+  nmap <leader>gb :Gblame<CR>
+  nmap <leader>gs :Gstatus<CR>
+  nmap <leader>gd :Gdiff<CR>
+  nmap <leader>gl :Glog<CR>
+  nmap <leader>gc :Gcommit<CR>
+  nmap <leader>gp :Git push<CR>
+" }
+
+" Rails.vim {
+  nnoremap <leader>a :A<CR>  " Go to alternate file
+" }
+
+" Ruby {
+  " Alternate between do; end and { } blocks in ruby
+  let g:blockle_mapping = '<Leader>{'
+  autocmd FileType ruby,eruby set omnifunc=rubycomplete#Complete
+  autocmd FileType ruby,eruby let g:rubycomplete_buffer_loading = 1
+  autocmd FileType ruby,eruby let g:rubycomplete_rails = 1
+  autocmd FileType ruby,eruby let g:rubycomplete_classes_in_global = 1
+" }
+
+" MatchIt {
+  " % to bounce from do to end etc.
+  runtime! macros/matchit.vim
+" }
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" HANDY SHORTCUTS
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 map <leader>e :edit %%
 map <leader>v :view %%
 
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" WINDOW SIZES
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Make the current window big, but leave others context
 set winwidth=7
 set winwidth=80
+
 " We have to have a winheight bigger than we want to set winminheight. But if
 " we set winheight to be huge before winminheight, the winminheight set will
 " fail.
@@ -169,14 +222,19 @@ endfunction
 inoremap <tab> <c-r>=InsertTabWrapper()<cr>
 inoremap <s-tab> <c-n>
 
-" rspec mappings
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Vimux
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Open vimux on the side
+let g:VimuxOrientation = "h"
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" RSPEC SHORTCUTS
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 map <Leader>a :call RunAllSpecs()<CR>
 map <Leader>f :call RunCurrentSpecFile()<CR>
 map <Leader>s :call RunNearestSpec()<CR>
 map <Leader>l :call RunLastSpec()<CR>
-
-" Open vimux on the side
-let g:VimuxOrientation = "h"
 
 function! RunAllSpecs()
   let l:command = "spring rspec"
