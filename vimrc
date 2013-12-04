@@ -58,6 +58,7 @@ autocmd BufWritePre * :%s/\s\+$//e
 set wildmode=longest,list
 " Make tab completion for files/buffers act like bash
 set wildmenu
+set wildignore+=*.o,*.obj,.git,*.rbc,*.class,.svn,vendor/bundle/*,vendor/gems/*,*.sassc,*.scssc,tmp/*,log/*,*.png,*.jpg,*.pdf,*.zip,*.gz,public/assets/*,public/uploads/*
 
 " Always save everything
 set autowriteall
