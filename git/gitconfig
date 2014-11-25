@@ -22,9 +22,11 @@
   fe = fetch --all
   ff = merge --ff-only
   l = log
-  ll = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
-  lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
-  log-json = log --pretty=format:'\"%h\": {%n  \"commit\": \"%H\",%n  \"author\": \"%an <%ae>\",%n  \"date\": \"%ad\",%n  \"message\": \"%s\"%n}'
+  lg = log --graph --pretty=custom --abbrev-commit --date=relative
+  ll = log --graph --pretty=custom --abbrev-commit --date=relative
+  log-json = log --pretty=json
+  ls = ls-files
+  mc = merge --no-ff
   mt = mergetool
   ps = push
   rb = rebase
@@ -33,6 +35,10 @@
   rs = reset
   s = status -sb
   su = submodule update --init
+
+[pretty]
+  custom = "%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset"
+  json = '\"%h\": {%n  \"commit\": \"%H\",%n  \"author\": \"%an <%ae>\",%n  \"date\": \"%ad\",%n  \"message\": \"%s\"%n}'
 
 [core]
   autocrlf = input
