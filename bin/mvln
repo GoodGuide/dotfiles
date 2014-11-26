@@ -1,0 +1,33 @@
+#!/bin/bash
+
+set -e -u
+
+trap show_failed EXIT
+
+show_failed(){
+  [[ $? != 0 ]] && echo "failed"
+}
+
+abs_path() {
+  if command -v greadlink > /dev/null; then
+    greadlink -f "$1"
+  else
+    readlink -f "$1"
+  fi
+}
+
+
+dest_file="$(abs_path "$2")"
+src="$(abs_path "$1")"
+
+if [[ -d "${dest_file}" ]]; then
+  dest_file="${dest_file}/$(basename "${src}")"
+fi
+
+if [[ -e $dest_file ]]; then
+  echo "Dest exists!"
+  exit 1
+fi
+
+mv -vn "$src" "$dest_file"
+ln -sv "$dest_file" "$src"

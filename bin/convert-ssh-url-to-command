@@ -1,0 +1,20 @@
+#!/usr/bin/env python
+
+from urlparse import urlparse
+import sys
+
+url = urlparse(sys.argv[1])
+
+f = ['ssh', '-l', url.username]
+if url.port:
+    f += ['-p', str(url.port)]
+f += [url.hostname]
+
+command = ' '.join(f)
+
+# from os.path import expanduser
+# home = expanduser("~")
+# with open(home+"/.logs/convert-ssh-url-to-command", "a") as myfile:
+#     myfile.write("'"+sys.argv[1]+"' --> '"+command+"'\n")
+
+sys.stdout.write(command)

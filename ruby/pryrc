@@ -1,0 +1,21 @@
+# vim: set filetype=ruby:
+
+__irbrc = File.join(File.dirname(File.readlink(__FILE__)), 'irbrc')
+load __irbrc if File.exist?(__irbrc)
+
+__rails_environment_rb = File.join(Dir.getwd, 'config', 'environment.rb')
+
+if !defined?(Rails) and File.exist?(__rails_environment_rb) and ENV['SKIP_RAILS'].nil?
+  if defined?(ANSI)
+    warn ANSI.blue { '[pryrc] Loading Rails application...' }
+  else
+    warn '[pryrc] Loading Rails application'
+  end
+  require __rails_environment_rb
+
+  require 'rails/console/app'
+  require 'rails/console/helpers'
+  if defined?(Rails) && Rails.env
+    extend Rails::ConsoleMethods
+  end
+end

@@ -1,3 +1,15 @@
+.kateconfig
+*.kate-swp
+.project
+*.lck
+*.bak
+*~
+/.pt
+/.pt.yaml
+
+# KDE Dingleberries
+.directory
+
 # Windows Dingleberries
 Thumbs.db
 
@@ -5,25 +17,30 @@ Thumbs.db
 .DS_Store
 .~lock.*
 
-# Kate editor
-.kateconfig
-*.kate-swp
-.project
+.redcar/
 
-# SublimeText
+/Dropbox
+Dropbox
+
 *.sublime-project
 *.sublime-workspace
 
-# RubyMine, etc
+*.sassc
+
+Notes
+Notes.*
+
 atlassian-ide-plugin.xml
 .idea/
 *.iws
+
+.rbenv-version
+.rbenv-vars
 
 # ctags config file
 .ctags
 .__ctags
 
 *.orig
-*.lck
-*~
-*.sassc
+
+.envrc
