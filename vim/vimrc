@@ -6,6 +6,8 @@ set nocompatible
 	filetype off " required by pathogen
 	filetype plugin indent off
 
+	" To disable a plugin, add the name of the folder in vim/bundle to this array
+	" let g:pathogen_disabled = []
 	execute pathogen#infect()
 
 	filetype plugin indent on  " Automatically detect file types. (must turn on after pathogen)
