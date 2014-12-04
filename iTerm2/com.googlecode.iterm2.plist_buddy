@@ -1,0 +1,15 @@
+Set :AllowClipboardAccess true
+Set :CheckTestRelease false
+Set :HideScrollbar true
+Set :HideMenuBarInFullscreen false
+Set :Hotkey true
+Set :HotkeyChar 96
+Set :HotkeyCode 50
+Set :HotkeyModifiers 1573160
+Set :"New Bookmarks":0:"Normal Font" "Monaco 12"
+Set :"New Bookmarks":0:"Option Key Sends" 2
+Set :"New Bookmarks":0:"Right Option Key Sends" 2
+Set :"New Bookmarks":0:"Terminal Type" "xterm-256color"
+Set :"New Bookmarks":0:"Use Bold Font" true
+Set :"New Bookmarks":0:"Use Bright Bold" true
+Save
