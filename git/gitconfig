@@ -49,7 +49,7 @@
 
 [merge]
   defaultToUpstream = true
-  tool = diffmerge
+  ; tool = diffmerge
 
 [mergetool "diffmerge"]
   cmd = diffmerge --merge --result=$MERGED $LOCAL $BASE $REMOTE
