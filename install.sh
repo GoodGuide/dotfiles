@@ -19,5 +19,8 @@ cd "${DOTFILES_PATH}"
 
 git submodule update --init --recursive
 
+echo -e "\n[ link.sh ]\n"
 ./link.sh
+
+echo -e "\n[ setup.sh ]\n"
 ./setup.sh

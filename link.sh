@@ -4,18 +4,41 @@ set -e -u
 
 DOTFILES_PATH=${DOTFILES_PATH:-"$HOME/.dotfiles"}
 
+
+function echo_red(){
+	echo -e "\x1b[31m$1\x1b[0m"
+}
+
+function echo_green(){
+	echo -e "\x1b[32m$1\x1b[0m"
+}
+
+
 function create_link() {
 	[[ -e "$DOTFILES_PATH/$1" ]] || (echo "Source does not exist"; exit 1)
+	local destination="$HOME/$2"
+	local target="$DOTFILES_PATH/$1"
 	echo -n "  ~/$2 : "
-	if [[ ! -e "$HOME/$2" ]]; then
-		mkdir -p "$(dirname "$HOME/$2")"
-		ln -sv "$DOTFILES_PATH/$1" "$HOME/$2"
+	if [[ -h "$destination" ]]; then
+		local current="$(readlink "$destination")"
+		if [[ $current = $target ]]; then
+			echo_green "already exists correctly"
+		else
+			if [[ -r $current ]]; then
+				echo_red "already exists as a symlink but does not point to $target"
+			else
+				echo_red "already exists as a broken symlink"
+			fi
+		fi
+	elif [[ -e "$destination" ]]; then
+		echo_red "already exists"
 	else
-		echo "already exists"
+		mkdir -p "$(dirname "$destination")"
+		ln -sv "$target" "$destination"
 	fi
 }
 
-echo "Installing to $HOME from ${DOTFILES_PATH}..."
+echo -e "Installing to $HOME from ${DOTFILES_PATH}...\n"
 
 create_link 'git/gitconfig' '.gitconfig'
 create_link 'git/gitignore' '.gitignore'
