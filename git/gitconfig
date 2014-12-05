@@ -2,29 +2,29 @@
   branch = auto
   diff = auto
   status = auto
-	ui = auto
+  ui = auto
 
 [alias]
-	a = add
-	aa = add -A
+  a = add
+  aa = add -A
   ae = add --edit
   ap = add --patch
   b = branch
   br = branch
-	c = commit -v
+  c = commit -v
   ci = commit -v
-	co = checkout
+  co = checkout
   com = checkout  master
-	d = diff --word-diff
-	dc = diff --word-diff --cached
-	di = diff --word-diff
+  d = diff --word-diff
+  dc = diff --word-diff --cached
+  di = diff --word-diff
   f = fetch --all
   fe = fetch --all
   ff = merge --ff-only
-	l = log
-	ll = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
-	lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
-	log-json = log --pretty=format:'\"%h\": {%n  \"commit\": \"%H\",%n  \"author\": \"%an <%ae>\",%n  \"date\": \"%ad\",%n  \"message\": \"%s\"%n}'
+  l = log
+  ll = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
+  lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
+  log-json = log --pretty=format:'\"%h\": {%n  \"commit\": \"%H\",%n  \"author\": \"%an <%ae>\",%n  \"date\": \"%ad\",%n  \"message\": \"%s\"%n}'
   mt = mergetool
   ps = push
   rb = rebase
@@ -35,8 +35,8 @@
   su = submodule update --init
 
 [core]
-	autocrlf = input
-	excludesfile = ~/.gitignore
+  autocrlf = input
+  excludesfile = ~/.gitignore
 
 [gui]
 
@@ -45,15 +45,15 @@
   prune = yes
 
 [push]
-	default = upstream
+  default = upstream
 
 [merge]
-	defaultToUpstream = true
+  defaultToUpstream = true
   tool = diffmerge
 
 [mergetool "diffmerge"]
-	cmd = diffmerge --merge --result=$MERGED $LOCAL $BASE $REMOTE
-	trustExitCode = true
+  cmd = diffmerge --merge --result=$MERGED $LOCAL $BASE $REMOTE
+  trustExitCode = true
 
 [include]
-	path = ~/Dropbox/.config/gitconfig.private ; include name/email/etc.
+  path = ~/.gitconfig.local ; include name/email/etc.
