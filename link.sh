@@ -2,23 +2,29 @@
 # vim: set noexpandtab tabstop=4 shiftwidth=0:
 set -e -u
 
-DOTFILES_PATH=${DOTFILES_PATH:-"$HOME/.dotfiles"}
+DOTFILES_PATH="${DOTFILES_PATH:-"$HOME/.dotfiles"}"
+cd "$DOTFILES_PATH"
 
-
-function echo_red(){
+function echo_red() {
 	echo -e "\x1b[31m$1\x1b[0m"
 }
 
-function echo_green(){
+function echo_green() {
 	echo -e "\x1b[32m$1\x1b[0m"
 }
 
+files_are_identical() {
+	local md5=$(command -v md5 || command -v md5sum)
+	local hash_1=$(cat $1 | $md5)
+	local hash_2=$(cat $2 | $md5)
+	[[ $hash_1 == $hash_2 ]]
+}
 
 function create_link() {
-	[[ -e "$DOTFILES_PATH/$1" ]] || (echo "Source does not exist"; exit 1)
+	echo -n "  ~/$2 : "
+	[[ -e "$DOTFILES_PATH/$1" ]] || (echo_red "ERROR: Source does not exist"; exit 1)
 	local destination="$HOME/$2"
 	local target="$DOTFILES_PATH/$1"
-	echo -n "  ~/$2 : "
 	if [[ -h "$destination" ]]; then
 		local current="$(readlink "$destination")"
 		if [[ $current = $target ]]; then
@@ -35,6 +41,36 @@ function create_link() {
 	else
 		mkdir -p "$(dirname "$destination")"
 		ln -sv "$target" "$destination"
+	fi
+}
+
+copy_if_missing(){
+	echo -n "  ~/$2 : "
+	[[ -e "$DOTFILES_PATH/$1" ]] || (echo_red "ERROR: Source does not exist"; exit 1)
+	local destination="$HOME/$2"
+	local target="$DOTFILES_PATH/$1"
+	if [[ -h "$destination" ]]; then
+		local current="$(readlink "$destination")"
+		if [[ $current = $target ]]; then
+			echo_green "already exists as a symlink"
+		else
+			if [[ -r $current ]]; then
+				echo_red "already exists as a symlink but does not point to $target"
+			else
+				echo_red "already exists as a broken symlink"
+			fi
+		fi
+	elif [[ -f "$destination" ]]; then
+		if files_are_identical "$destination" "$target"; then
+			echo_green "file aready exists but its content matches the source"
+		else
+			echo_red "skipping; already exists"
+		fi
+	elif [[ -e "$destination" ]]; then
+		echo_red "skipping; already exists"
+	else
+		mkdir -p "$(dirname "$destination")"
+		cp -v "$target" "$destination"
 	fi
 }
 
@@ -61,8 +97,11 @@ create_link 'zsh/prezto/runcoms/zshrc' '.zshrc'
 create_link 'vim/bundle' '.vim/bundle'
 create_link 'vim/autoload' '.vim/autoload'
 create_link 'vim/vimrc' '.vimrc'
-mkdir -vp $HOME/.vim/backup
+mkdir -vp "$HOME/.vim/backup"
 
 for bin in bin/*; do
 	create_link "$bin" ".local/${bin}"
 done
+
+copy_if_missing 'ssh/config' '.ssh/config'
+copy_if_missing 'ssh/known_hosts' '.ssh/known_hosts'
