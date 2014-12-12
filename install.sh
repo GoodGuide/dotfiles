@@ -1,12 +1,26 @@
-#!/bin/sh
+#!/bin/bash
+# vim: set noexpandtab tabstop=4 shiftwidth=0:
+set -e -u
 
-ruby symlink.rb
+if [[ ${DOTFILES_PATH:-unset} == 'unset' ]]; then
+	export DOTFILES_PATH="$HOME/.dotfiles"
+fi
 
-rm -rf ~/.vim/bundle
-mkdir ~/.vim/bundle
-git clone https://github.com/gmarik/vundle.git ~/.vim/bundle/vundle
-vim -u ~/.vimrc.bundles +BundleInstall +qa
+if [[ ! -d ${DOTFILES_PATH}/.git ]]; then
+	if [[ -d ${DOTFILES_PATH} ]]; then
+		echo "$DOTFILES_PATH already exists but isn't a git repo. Unsure how to continue."
+		exit 1
+	fi
 
-cd ~/.vim/bundle/Command-T/ruby/command-t/
-ruby extconf.rb
-make
+	git clone https://github.com/GoodGuide/dotfiles.git "${DOTFILES_PATH}"
+fi
+
+cd "${DOTFILES_PATH}"
+
+git submodule update --init --recursive
+
+echo -e "\n[ link.sh ]\n"
+./link.sh
+
+echo -e "\n[ setup.sh ]\n"
+./setup.sh

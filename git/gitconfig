@@ -1,0 +1,65 @@
+[color]
+  branch = auto
+  diff = auto
+  status = auto
+  ui = auto
+
+[alias]
+  a = add
+  aa = add -A
+  ae = add --edit
+  ap = add --patch
+  b = branch
+  br = branch
+  c = commit -v
+  ci = commit -v
+  co = checkout
+  com = checkout  master
+  d = diff --word-diff
+  dc = diff --word-diff --cached
+  di = diff --word-diff
+  f = fetch --all
+  fe = fetch --all
+  ff = merge --ff-only
+  l = log
+  lg = log --graph --pretty=custom --abbrev-commit --date=relative
+  ll = log --graph --pretty=custom --abbrev-commit --date=relative
+  log-json = log --pretty=json
+  ls = ls-files
+  mc = merge --no-ff
+  mt = mergetool
+  ps = push
+  rb = rebase
+  rbi = rebase -i
+  rbc = rebase --continue
+  rs = reset
+  s = status -sb
+  su = submodule update --init
+
+[pretty]
+  custom = "%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset"
+  json = '\"%h\": {%n  \"commit\": \"%H\",%n  \"author\": \"%an <%ae>\",%n  \"date\": \"%ad\",%n  \"message\": \"%s\"%n}'
+
+[core]
+  autocrlf = input
+  excludesfile = ~/.gitignore
+
+[gui]
+
+[fetch]
+  recurseSubmodules = yes
+  prune = yes
+
+[push]
+  default = upstream
+
+[merge]
+  defaultToUpstream = true
+  ; tool = diffmerge
+
+[mergetool "diffmerge"]
+  cmd = diffmerge --merge --result=$MERGED $LOCAL $BASE $REMOTE
+  trustExitCode = true
+
+[include]
+  path = ~/.gitconfig.local ; include name/email/etc.

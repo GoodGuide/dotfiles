@@ -1,0 +1,430 @@
+" vim: set noexpandtab tabstop=2 shiftwidth=0:
+
+set nocompatible
+
+" Plugin Load {
+	filetype off " required by pathogen
+	filetype plugin indent off
+
+	" To disable a plugin, add the name of the folder in vim/bundle to this array
+	" let g:pathogen_disabled = []
+	execute pathogen#infect()
+
+	filetype plugin indent on  " Automatically detect file types. (must turn on after pathogen)
+
+	" clear autocmds, to prevent compounding them when reloading this file
+	autocmd!
+" }
+
+" Primary key setup {
+	let mapleader=' ' " leader key is <space>
+" }
+
+" Looks {
+	set showmode " display the current mode
+
+	set cursorline " highlight current line
+	" toggle cursor highlighting
+	nnoremap <Leader>c :set cursorline!<CR>
+
+	set colorcolumn=80,100 " Show lines on 80 and 100 chars
+
+	set list
+	set listchars=eol:◁,tab:»\ ,trail:·,nbsp:␣
+" }
+
+" Colors {
+	colorscheme hybrid
+" }
+
+" Basic config {
+	set ruler " show cursor position in the status bar
+	syntax on " enable syntax highlighting
+
+	set mouse=a
+
+	" Absolute line numbers in insert mode, and relative in normal mode
+	set number relativenumber
+	autocmd InsertEnter * :set number norelativenumber
+	autocmd InsertLeave * :set number relativenumber
+
+	set encoding=utf-8
+	set clipboard=unnamed
+" }
+
+" Whitespace {
+	set tabstop=2
+	set shiftwidth=2
+	set softtabstop=2
+	set expandtab
+	set smartindent
+
+	" remove trailing whitespace on save
+	autocmd bufwritepre * :call FixTrailingWhitespace()
+" }
+
+" Searching {
+	set hlsearch
+	set incsearch
+	set ignorecase
+	set smartcase
+	nnoremap N Nzz
+	nnoremap n nzz
+
+	" unset the "last search pattern" register by hitting return
+	nnoremap <CR> :noh<CR><CR>
+" }
+
+" retain visual selection on < or > indent commands
+vnoremap > >gv
+vnoremap < <gv
+
+" move the current line up and down
+nnoremap <C-J> :m+<CR>==
+nnoremap <C-K> :m-2<CR>==
+
+" Tab completion
+set wildmode=list:longest,list:full
+
+" Ignored filetypes/directories
+set wildignore+=*.o,*.obj,.git,*.rbc,*.class,.svn,vendor/gems/*,*.sassc,*.scssc,tmp/*,log/*,*.png,*.jpg,*.pdf,*.zip,*.gz,public/assets/*,public/uploads/*,vendor/bundle/*,*.orig,db/sphinx/*,node_modules/*
+
+" always show status line for all windows
+set laststatus=2
+
+" Windows {
+	set winwidth=84
+	set noequalalways
+" }
+
+" autosave
+au FocusLost * silent! wa
+au BufLeave * silent! wa
+set autowrite
+
+" Wrapping {
+	set wrap linebreak " soft-wrap
+	" set cpoptions+=v
+	let &showbreak="___ " " wrapped-line indicator
+
+	set textwidth=80 " wrap things at 80 chars
+
+	set formatoptions+=l " don't break long lines in insert mode
+	set formatoptions-=c " don't auto-wrap comments
+	set formatoptions-=r " don't insert comment leader after <Enter> in insert mode
+	set formatoptions+=o " insert comment leader on 'o' or 'O'
+	set formatoptions+=j " remove comment leader in between joined lines
+	set formatoptions+=n " recognize numbered lists and use for autoindent
+	set formatoptions+=q " allow formatting comments with 'gq'
+	set formatoptions-=t " don't use textwidth to auto-wrap text
+" }
+
+" allow backspacing over everything in insert mode
+set backspace=indent,eol,start
+
+" Disable modelines
+" set nomodeline
+
+" Directories for swp files
+set backupdir=~/.vim/backup
+set directory=~/.vim/backup
+
+" When a bracket is inserted, briefly jump to the matching one.  The
+" jump is only done if the match can be seen on the screen.  The time to
+" show the match can be set with 'matchtime'.
+set showmatch
+
+" Exit insert mode by mashing j and k
+" inoremap jk <esc>
+inoremap kj <esc>
+
+" Save with leader-W
+nmap <leader>w :w<cr>
+
+nmap <leader>E :Explore<cr>
+
+" Disable F1 for help
+map <F1> <nop>
+
+" Plugin configs {
+	" CTRL-P {
+		" let g:ctrlp_match_func = { 'match' : 'matcher#cmatch' }
+		let g:ctrlp_map = '<leader>t'
+		let g:ctrlp_working_path_mode = 'ra'
+		let g:ctrlp_max_files = 10000
+	" }
+
+	" Syntastic {
+		let g:syntastic_enable_signs=1
+		let g:syntastic_quiet_messages = {'level': 'warnings'}
+		let g:syntastic_ruby_checkers=['mri', 'rubocop']
+		let g:syntastic_go_checkers=['go']
+	" }
+
+	" Gundo {
+		" Open undo tree buffer
+		nnoremap <Leader>u :GundoToggle<CR>
+	" }
+
+	" YankRing {
+		" Open Show yank ring buffer
+		nnoremap <Leader>y :YRShow<CR>
+	" }
+
+	" Commentary {
+		nmap <leader>/ <plug>CommentaryLine<CR>
+		vmap <leader>/ <plug>Commentary<CR>
+	" }
+
+	" Fugitve {
+		nmap <leader>gb :Gblame<CR>
+		nmap <leader>gs :Gstatus<CR>
+		nmap <leader>gd :Gdiff<CR>
+		nmap <leader>gl :Glog<CR>
+		nmap <leader>gc :Gcommit<CR>
+	" }
+
+	" Rails.vim {
+		" Go to alternate file
+		nnoremap <leader>a :A<CR>
+	" }
+
+	" Ruby {
+		" Alternate between do; end and { } blocks in ruby
+		let g:blockle_mapping = '<Leader>{'
+		autocmd FileType ruby,eruby set omnifunc=rubycomplete#Complete
+		autocmd FileType ruby,eruby let g:rubycomplete_buffer_loading = 1
+		autocmd FileType ruby,eruby let g:rubycomplete_rails = 1
+		autocmd FileType ruby,eruby let g:rubycomplete_classes_in_global = 1
+	" }
+
+	" Dash.vim {
+		nmap <silent> <leader>d <Plug>DashSearch
+		vmap <silent> <leader>d "dy:Dash <C-R>d<CR>
+	" }
+
+	" Coffeescript {
+		map <leader>C :CoffeeCompile vert<CR>
+		vmap <leader>C <esc>:'<,'>:CoffeeCompile vert<CR>
+		" command! -nargs=1 C CoffeeCompile | :<args>
+		au BufNewFile,BufReadPost,BufWritePost *.coffee set foldmethod=indent
+	" }
+
+	" Go {
+		let g:go_bin_path = expand("$GOPATH/bin")
+	" }
+" }
+
+" CTags {
+	" Retag all files in project
+	map <Leader>rt :!ctags --extra=+f -R *<CR><CR>
+	map <C-\> :tnext<CR>
+
+	" au BufWritePost *.rb silent! !ctags --extra=+f -R > /dev/null 2>&1 &
+	" au BufWritePost *.coffee silent! !ctags --extra=+f -R > /dev/null 2>&1 &
+	" au BufWritePost *.js silent! !ctags --extra=+f -R > /dev/null 2>&1 &
+" }
+
+" Filetypes {
+	augroup filetypedetect
+		au! BufRead,BufNewFile *_spec.rb set filetype=rspec.ruby
+		autocmd BufNewFile,BufReadPost *.md set filetype=markdown
+	augroup END
+
+	" Thorfile, Rakefile, Vagrantfile and Gemfile are Ruby
+	au BufRead,BufNewFile {Capfile,Guardfile,Gemfile,Rakefile,Vagrantfile,Vagrantfile.*,Thorfile,config.ru} set ft=ruby
+
+	" Nginx config
+	au BufRead,BufNewFile *.conf set ft=nginx
+
+	" Force hamlc templates to syntax highlight (ghetto)
+	au BufRead,BufNewFile *.hamlc set ft=haml
+
+	au BufRead,BufNewFile,BufWritePost *.{scss,sass} set foldmethod=indent foldignore=""
+
+	augroup vimrc
+		au BufReadPre * setlocal foldmethod=indent
+	augroup END
+
+	" Autoreload when .vimrc files change
+	augroup myvimrc
+		au!
+		au BufWritePost .vimrc,_vimrc,vimrc,.gvimrc,_gvimrc,gvimrc so $MYVIMRC | if has('gui_running') | so $MYGVIMRC | endif
+	augroup END
+" }
+
+" Fully unfold each file upon opening
+au BufRead,BufNewFile * normal zR
+
+" Ack for the current word
+nmap <Leader>A :Ack -w <C-r><C-w>
+vmap <Leader>A "dy:Ack <C-r>d
+
+" replace the current word in the buffer
+nmap <Leader>r :%s/<C-r><C-w>//gc<Left><Left><Left>
+vmap <Leader>r "dy:%s/<C-r>d//gc<Left><Left><Left>
+
+nmap <Leader>e :edit %%
+
+
+" Add extra block object mods (eg ci/ ) {
+	let pairs = [ ".", ":", ",", ";", "<bar>", "/", "<bslash>", "*", "( )", "{ }", "< >"]
+	for keychars in pairs
+		let keys = map(split(keychars), "substitute(v:val, '^\s*\(.\{-}\)\s*$', '\1', '')")
+		let key = keys[0]
+		let ekey = key
+
+		if len(keys) > 1
+			let ekey = keys[1]
+		endif
+
+		execute "nnoremap ci".key." f".ekey."cT".key
+		execute "nnoremap di".key." f".ekey."dT".key
+		execute "nnoremap yi".key." f".ekey."yT".key
+		execute "nnoremap vi".key." f".ekey."vT".key
+		execute "nnoremap ca".key." f".ekey."lcF".key
+		execute "nnoremap da".key." f".ekey."ldF".key
+		execute "nnoremap ya".key." f".ekey."lyF".key
+		execute "nnoremap va".key." f".ekey."lvF".key
+	endfor
+" }
+
+" Handle very large files nicely {
+	" Protect large files from sourcing and other overhead.
+	" Large files are > 10M
+	let g:LargeFile = 1024 * 1024 * 10
+	augroup LargeFile
+		" Set options:
+		" eventignore+=FileType (no syntax highlighting etc assumes FileType always on)
+		" noswapfile (save copy of file)
+		" bufhidden=unload (save memory when other file is viewed)
+		" undolevels=-1 (no undo possible)
+		" autocmd BufReadPre * let f=expand("<afile>") | if getfsize(f) > g:LargeFile | set eventignore+=FileType | setlocal noswapfile bufhidden=unload undolevels=-1 | else | set eventignore-=FileType | endif
+	augroup END
+" }
+"
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Vimux
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Open vimux on the side
+let g:VimuxOrientation = "h"
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Functions
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+map <Leader>ra :call RunAllSpecs()<CR>
+map <Leader>rf :call RunCurrentSpecFile()<CR>
+map <Leader>rs :call RunNearestSpec()<CR>
+map <Leader>rl :call RunLastSpec()<CR>
+
+function! RunAllSpecs()
+	let l:command = "rspec"
+	call RunSpecs(l:command)
+endfunction
+
+function! RunCurrentSpecFile()
+	if InSpecFile()
+		let l:command = "rspec -fd " . @%
+		call SetLastSpecCommand(l:command)
+		call RunSpecs(l:command)
+	elseif InSpecJSFile()
+		let l:command = "teaspoon " . @%
+		call SetLastSpecCommand(l:command)
+		call RunSpecs(l:command)
+	endif
+endfunction
+
+function! RunNearestSpec()
+	if InSpecFile()
+		let l:command = "rspec -fd " . " " . @% . ":" . line(".")
+		call SetLastSpecCommand(l:command)
+		call RunSpecs(l:command)
+	endif
+endfunction
+
+function! RunLastSpec()
+	if exists("t:last_spec_command")
+		call RunSpecs(t:last_spec_command)
+	endif
+endfunction
+
+function! InSpecFile()
+	return match(expand("%"), "_spec.rb$") != -1
+endfunction
+
+function! InSpecJSFile()
+	return match(expand("%"), "_spec.js.coffee$") != -1
+endfunction
+
+function! SetLastSpecCommand(command)
+	let t:last_spec_command = a:command
+endfunction
+
+function! RunSpecs(command)
+	" call VimuxRunCommand("clear && echo " . a:command . " && echo && " . a:command)
+	call VimuxRunCommand(a:command)
+endfunction
+
+function! s:RubyChangeHashSyntax(line1,line2)
+		let l:save_cursor = getpos(".")
+		silent! execute ':' . a:line1 . ',' . a:line2 . 's/\v:([a-z0-9_]+)\s*\=\>\s*/\1: /g'
+		call setpos('.', l:save_cursor)
+endfunction
+
+command! -range=% RubyChangeHashSyntax call <SID>RubyChangeHashSyntax(<line1>,<line2>)
+noremap <leader>rh :RubyChangeHashSyntax<cr>
+
+command! -nargs=0 -bar Qargs execute 'args ' . s:QuickfixFilenames()
+
+" Contributed by "ib."
+" http://stackoverflow.com/questions/5686206/search-replace-using-quickfix-list-in-vim#comment8286582_5686810
+command! -nargs=1 -complete=command -bang Qdo call s:Qdo(<q-bang>, <q-args>)
+
+function! s:Qdo(bang, command)
+	if exists('w:quickfix_title')
+		let in_quickfix_window = 1
+		cclose
+	else
+		let in_quickfix_window = 0
+	endif
+
+	arglocal
+	exe 'args '.s:QuickfixFilenames()
+	exe 'argdo'.a:bang.' '.a:command
+	argglobal
+
+	if in_quickfix_window
+		copen
+	endif
+endfunction
+
+function! s:QuickfixFilenames()
+	" Building a hash ensures we get each buffer only once
+	let buffer_numbers = {}
+	for quickfix_item in getqflist()
+		let buffer_numbers[quickfix_item['bufnr']] = bufname(quickfix_item['bufnr'])
+	endfor
+	return join(map(values(buffer_numbers), 'fnameescape(v:val)'))
+endfunction
+
+function! FixTrailingWhitespace()
+	let l:winview = winsaveview()
+	let l:folding = &foldenable
+	let &foldenable = 0
+
+	try
+		" Remove trailing whitespace on all lines
+		keepjumps % substitute/\v\s+$//e
+		undojoin
+
+		" Go to start of file and then delete <some whitespace> anchored by <end of file>
+		keepjumps 0 goto
+		keepjumps % substitute/\_s*\%$//e
+	catch
+	endtry
+
+	let &foldenable = l:folding
+	call winrestview(l:winview)
+endfunction

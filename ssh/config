@@ -1,0 +1,4 @@
+# This allows you to `git clone gh:goodguide/platform.git` if you'd rather just type it out instead of copying the URL from Github but would like to save some keystrokes.
+Host gh
+  Hostname github.com
+  User git
