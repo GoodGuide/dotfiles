@@ -1,5 +1,5 @@
 #!/bin/bash
-# vim: set noexpandtab tabstop=4 shiftwidth=0:
+# vim: set noexpandtab tabstop=4 softtabstop=4 shiftwidth=4:
 set -e -u
 
 DOTFILES_PATH="${DOTFILES_PATH:-"$HOME/.dotfiles"}"

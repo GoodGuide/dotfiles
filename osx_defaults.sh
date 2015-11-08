@@ -1,4 +1,5 @@
 #!/bin/bash
+# vim: set noexpandtab tabstop=4 softtabstop=4 shiftwidth=4:
 set -e -x
 
 # Many thanks to https://mths.be/osx
