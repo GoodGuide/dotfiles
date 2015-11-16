@@ -17,12 +17,12 @@ It currently includes settings for:
 
 A decent amount of effort went into making this safe to run on an existing setup, but as always, make sure if you have anything configuring any of the aforementioned software, **back it up before running this**.
 
-### for the daring:
+### For the daring:
 ```sh
 bash <(curl -LsS https://github.com/GoodGuide/dotfiles/raw/master/install.sh)
 ```
 
-### clone first:
+### Clone first:
 
 ```sh
 git clone git@github.com:GoodGuide/dotfiles ~/.dotfiles
