@@ -1,0 +1,10 @@
+#!/usr/bin/env zsh
+
+DIRECTORY=`git rev-parse --show-toplevel 2>/dev/null || pwd`
+
+NOTES_FILE="$HOME/Dropbox/Documents/Notes/${DIRECTORY##$HOME/}.txt"
+
+echo $NOTES_FILE
+mkdir -vp $(dirname $NOTES_FILE)
+
+$EDITOR $NOTES_FILE

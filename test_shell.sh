@@ -5,7 +5,7 @@ set -x -e
 export DOTFILES_PATH="$PWD"
 export HOME="$(mktemp -d)"
 
-_DOTFILES_TEST=true $DOTFILES_PATH/install.sh
+_DOTFILES_CLOBBER=true $DOTFILES_PATH/install.sh
 
 cd $HOME
 set +x

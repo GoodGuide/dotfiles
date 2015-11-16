@@ -9,7 +9,7 @@ fi
 if [[ ! -e ${DOTFILES_PATH} ]]; then
 	git clone https://github.com/GoodGuide/dotfiles.git "${DOTFILES_PATH}"
 else
-	if [[ ${_DOTFILES_TEST:-unset} == 'unset' ]]; then
+	if [[ ${_DOTFILES_CLOBBER:-unset} == 'unset' ]]; then
 		echo "$DOTFILES_PATH already exists. Aborting."
 		exit 1
 	fi

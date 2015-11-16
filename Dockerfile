@@ -1,10 +1,8 @@
-# vim: set expandtab tabstop=2 shiftwidth=0:
-FROM ubuntu:14.04
-
-ENV DEBIAN_FRONTEND noninteractive
+# vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
+FROM ubuntu:15.10
 
 # Set apt mirror
-RUN sed 's@archive.ubuntu.com@mirrors.centarra.com@' -i /etc/apt/sources.list
+RUN sed 's:archive.ubuntu.com/ubuntu/:mirrors.rit.edu/ubuntu-archive/:' -i /etc/apt/sources.list
 
 # enable backports and others off by default
 RUN sed 's/^#\s*deb/deb/' -i /etc/apt/sources.list
@@ -14,14 +12,15 @@ RUN echo 'Apt::Install-Recommends "false";' > /etc/apt/apt.conf.d/docker-no-reco
 
 # Enable automatic preference to use backport
 RUN echo 'Package: *'                      >> /etc/apt/preferences \
- && echo 'Pin: release a=trusty-backports' >> /etc/apt/preferences \
+ && echo 'Pin: release a=wily-backports'   >> /etc/apt/preferences \
  && echo 'Pin-Priority: 500'               >> /etc/apt/preferences
 
 # Install aptitude and add-apt-repository
-RUN apt-get update
-RUN apt-get install -y \
+RUN apt-get update \
+ && apt-get install -y \
       aptitude \
-      software-properties-common
+      software-properties-common \
+ && aptitude autoclean
 
 # Set up PPAs
 RUN add-apt-repository ppa:git-core/ppa
@@ -29,6 +28,7 @@ RUN add-apt-repository ppa:git-core/ppa
 # Install base packages
 RUN aptitude update \
  && aptitude install -y \
+      apt-transport-https \
       build-essential \
       curl \
       exuberant-ctags \
@@ -36,40 +36,35 @@ RUN aptitude update \
       ssh-client \
       git \
       manpages \
-      zsh
-
-# Install Docker-client
-RUN curl -L https://get.docker.io/builds/Linux/x86_64/docker-latest > /bin/docker \
- && chmod +x /bin/docker
-
-# Install Fig
-RUN curl -L https://github.com/docker/fig/releases/download/0.5.2/linux > /usr/local/bin/fig \
- && chmod +x /usr/local/bin/fig
-
-# Install Go
-RUN aptitude install -y \
+      zsh \
       mercurial \
       subversion \
-      bzr
-RUN curl -L https://storage.googleapis.com/golang/go1.3.1.linux-amd64.tar.gz | tar -xzf - -C /usr/local
-ENV PATH   /usr/local/go/bin:$PATH
-ENV GOROOT /usr/local/go
+      bzr \
+      openssh-server \
+      mosh \
+ && aptitude autoclean
+
+ENV PREFIX /usr/local
+
+# Set up ssh server
+RUN mkdir /var/run/sshd
+RUN mkdir /root/.ssh
+RUN chmod 0700 /root/.ssh
+EXPOSE 22
+
+# Install Golang
+RUN cd /tmp \
+ && curl -L -o go.tgz https://storage.googleapis.com/golang/go1.5.1.linux-amd64.tar.gz \
+ && shasum go.tgz | grep -q 46eecd290d8803887dec718c691cc243f2175fe0 \
+ && tar -xvz -C "$PREFIX" -f go.tgz \
+ && rm /tmp/go.tgz
+
+ENV PATH   $PREFIX/go/bin:$PATH
+ENV GOROOT $PREFIX/go
 ENV GOPATH /root/gopath
 RUN mkdir -p $GOPATH
 
-# Install some go tools
-RUN go get -u -v "github.com/nsf/gocode"
-RUN go get -u -v "code.google.com/p/go.tools/cmd/goimports"
-RUN go get -u -v "code.google.com/p/rog-go/exp/cmd/godef"
-RUN go get -u -v "code.google.com/p/go.tools/cmd/oracle"
-RUN go get -u -v "github.com/golang/lint/golint"
-RUN go get -u -v "github.com/kisielk/errcheck"
-RUN go get -u -v "github.com/jstemmer/gotags"
-
 # Install VIM
-RUN hg clone http://hg.debian.org/hg/pkg-vim/vim /opt/vim
-RUN cd /opt/vim \
- && hg checkout v7-4-397
 RUN aptitude install -y \
       libtcl8.6 \
       libselinux1 \
@@ -79,46 +74,68 @@ RUN aptitude install -y \
       libgpm2 \
       libssl-dev \
       libncurses5-dev \
-      python-dev
-RUN cd /opt/vim \
+      python-dev \
+ && aptitude autoclean
+RUN git clone --depth=1 https://github.com/vim/vim.git /opt/vim \
+ && cd /opt/vim \
+ && git checkout v7.4.922 \
  && ./configure --with-features=huge --with-compiledby='docker@goodguide.com' \
  && make \
  && make install
 
 # Install tmux
-# RUN curl http://downloads.sourceforge.net/project/tmux/tmux/tmux-1.9/tmux-1.9a.tar.gz?r=http%3A%2F%2Ftmux.sourceforge.net%2F&ts=1409547045&use_mirror=superb-dca3
-RUN curl -L http://downloads.sourceforge.net/project/tmux/tmux/tmux-1.9/tmux-1.9a.tar.gz | tar xzf - -C /opt/
 RUN aptitude install -y \
-      libevent-dev
-RUN cd /opt/tmux-1.9a \
+      libevent-dev \
+ && aptitude autoclean
+RUN git clone --depth=1 https://github.com/tmux/tmux.git /opt/tmux \
+ && cd /opt/tmux \
+ && git checkout 2.1
  && ./configure \
  && make \
  && make install
 
+# Install Docker-client
+RUN apt-key adv --keyserver 'hkp://p80.pool.sks-keyservers.net:80' --recv-keys '58118E89F3A912897C070ADBF76221572C52609D' \
+ && echo 'deb https://apt.dockerproject.org/repo ubuntu-wily main' > /etc/apt/sources.list.d/docker.list \
+ && aptitude update \
+ && aptitude install -y docker-engine "linux-image-extra-$(uname -r)" \
+ && aptitude autoclean
+
+# Install docker-compose
+RUN curl -fsSL -o /tmp/docker-compose "https://github.com/docker/compose/releases/download/1.5.1/docker-compose-`uname -s`-`uname -m`" \
+ && shasum /tmp/docker-compose | grep -q '3856b2f1ea7d144e8433c7648583898097b34594' \
+ && install -o root -g root /tmp/docker-compose "$PREFIX/bin/docker-compose" \
+ && rm /tmp/docker-compose
+
+# Install direnv
+RUN curl -fsSL -o /tmp/direnv https://github.com/zimbatm/direnv/releases/download/v2.6.0/direnv.linux-amd64 \
+ && shasum /tmp/direnv | grep -q 'ccc0b6569c39951d22ce7379b15fdffddb62d82d' \
+ && install /tmp/direnv $PREFIX/bin/direnv \
+ && rm /tmp/direnv
+
+# install goodguide-git-hooks
+RUN go get -u -v github.com/goodguide/goodguide-git-hooks
+
+# install forego
+RUN go get -u -v github.com/ddollar/forego
+
 # Set up some environment
 ENV HOME /root
 ENV DOTFILES_PATH $HOME/dotfiles
-
-# Set up minimum ssh
-# ADD ssh/config      /root/.ssh/config
-# ADD ssh/known_hosts /root/.ssh/known_hosts
-# RUN chown root:root /root/.ssh/* \
-#  && chmod 0600      /root/.ssh/*
+ENV DOCKER_HOST 'unix:///var/run/docker.sock'
 
 # Set shell to zsh
 RUN usermod -s /usr/bin/zsh root
 
-RUN mkdir -p $HOME/.local/bin
-ADD https://github.com/zimbatm/direnv/releases/download/v2.5.0/direnv.linux-amd64 $HOME/.local/bin/direnv
-RUN chmod +x $HOME/.local/bin/direnv
-
 # Add actual config
+ADD docker_runtime/entry.sh /usr/local/bin/entry_point
 ADD . $DOTFILES_PATH
-
-RUN $DOTFILES_PATH/install.sh
+RUN cd $DOTFILES_PATH \
+ && $DOTFILES_PATH/link.sh
+ && $DOTFILES_PATH/setup.sh
 
 ENV PATH $HOME/.local/bin:$PATH
 ENV SHELL /usr/bin/zsh
-WORKDIR /root/
+WORKDIR /
 VOLUME ["/root/code"]
-CMD ["/usr/bin/zsh"]
+CMD ["/usr/local/bin/entry_point"]
