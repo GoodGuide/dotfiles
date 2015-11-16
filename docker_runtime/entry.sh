@@ -6,8 +6,11 @@ set -x -e -u
 /bin/rm -vf /etc/ssh/ssh_host_*
 /usr/sbin/dpkg-reconfigure openssh-server
 
-for ghuser in $GITHUB_USERS_TO_ALLOW_SSH; do
-  curl -fsSL https://github.com/${user}.keys >> /root/.ssh/authorized_keys
-done
+mkdir -p /root/.ssh
+if [[ ${GITHUB_USERS_TO_ALLOW_SSH:-unset} != unset ]]; then
+  for ghuser in $GITHUB_USERS_TO_ALLOW_SSH; do
+    curl -fsSL https://github.com/${ghuser}.keys >> /root/.ssh/authorized_keys
+  done
+fi
 
-exec /usr/sbin/sshd
+exec /usr/sbin/sshd -D

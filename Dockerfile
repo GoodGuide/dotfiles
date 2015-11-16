@@ -9,6 +9,9 @@ RUN sed 's/^#\s*deb/deb/' -i /etc/apt/sources.list
 
 # never install recommends automatically
 RUN echo 'Apt::Install-Recommends "false";' > /etc/apt/apt.conf.d/docker-no-recommends
+RUN echo 'APT::Get::Assume-Yes "true";' > /etc/apt/apt.conf.d/docker-assume-yes
+RUN echo 'APT::Get::AutomaticRemove "true";' > /etc/apt/apt.conf.d/docker-auto-remove
+
 
 # Enable automatic preference to use backport
 RUN echo 'Package: *'                      >> /etc/apt/preferences \
@@ -20,14 +23,14 @@ RUN apt-get update \
  && apt-get install -y \
       aptitude \
       software-properties-common \
- && aptitude autoclean
+ && apt-get clean
 
 # Set up PPAs
 RUN add-apt-repository ppa:git-core/ppa
 
 # Install base packages
-RUN aptitude update \
- && aptitude install -y \
+RUN apt-get update \
+ && apt-get install -y \
       apt-transport-https \
       build-essential \
       curl \
@@ -42,7 +45,7 @@ RUN aptitude update \
       bzr \
       openssh-server \
       mosh \
- && aptitude autoclean
+ && apt-get clean
 
 ENV PREFIX /usr/local
 
@@ -59,13 +62,16 @@ RUN cd /tmp \
  && tar -xvz -C "$PREFIX" -f go.tgz \
  && rm /tmp/go.tgz
 
-ENV PATH   $PREFIX/go/bin:$PATH
 ENV GOROOT $PREFIX/go
+RUN echo "export GOROOT=$GOROOT" >> /etc/profile
 ENV GOPATH /root/gopath
+RUN echo "export GOPATH=$GOPATH" >> /etc/profile
 RUN mkdir -p $GOPATH
+ENV PATH $PREFIX/go/bin:$PATH
+RUN echo "export PATH=$GOPATH/bin:$GOROOT/bin:\$PATH" >> /etc/profile
 
 # Install VIM
-RUN aptitude install -y \
+RUN apt-get install -y \
       libtcl8.6 \
       libselinux1 \
       libc6 \
@@ -75,8 +81,8 @@ RUN aptitude install -y \
       libssl-dev \
       libncurses5-dev \
       python-dev \
- && aptitude autoclean
-RUN git clone --depth=1 https://github.com/vim/vim.git /opt/vim \
+ && apt-get clean
+RUN git clone https://github.com/vim/vim.git /opt/vim \
  && cd /opt/vim \
  && git checkout v7.4.922 \
  && ./configure --with-features=huge --with-compiledby='docker@goodguide.com' \
@@ -84,12 +90,15 @@ RUN git clone --depth=1 https://github.com/vim/vim.git /opt/vim \
  && make install
 
 # Install tmux
-RUN aptitude install -y \
+RUN apt-get install -y \
       libevent-dev \
- && aptitude autoclean
-RUN git clone --depth=1 https://github.com/tmux/tmux.git /opt/tmux \
+      automake \
+      pkg-config \
+ && apt-get clean
+RUN git clone https://github.com/tmux/tmux.git /opt/tmux \
  && cd /opt/tmux \
- && git checkout 2.1
+ && git checkout 2.1 \
+ && ./autogen.sh \
  && ./configure \
  && make \
  && make install
@@ -97,13 +106,13 @@ RUN git clone --depth=1 https://github.com/tmux/tmux.git /opt/tmux \
 # Install Docker-client
 RUN apt-key adv --keyserver 'hkp://p80.pool.sks-keyservers.net:80' --recv-keys '58118E89F3A912897C070ADBF76221572C52609D' \
  && echo 'deb https://apt.dockerproject.org/repo ubuntu-wily main' > /etc/apt/sources.list.d/docker.list \
- && aptitude update \
- && aptitude install -y docker-engine "linux-image-extra-$(uname -r)" \
- && aptitude autoclean
+ && apt-get update \
+ && apt-get install -y docker-engine \
+ && apt-get clean
 
 # Install docker-compose
 RUN curl -fsSL -o /tmp/docker-compose "https://github.com/docker/compose/releases/download/1.5.1/docker-compose-`uname -s`-`uname -m`" \
- && shasum /tmp/docker-compose | grep -q '3856b2f1ea7d144e8433c7648583898097b34594' \
+ && shasum /tmp/docker-compose | grep -q '7134e022b69fca96d4fa7c3ea8a47c980941485e' \
  && install -o root -g root /tmp/docker-compose "$PREFIX/bin/docker-compose" \
  && rm /tmp/docker-compose
 
@@ -119,23 +128,21 @@ RUN go get -u -v github.com/goodguide/goodguide-git-hooks
 # install forego
 RUN go get -u -v github.com/ddollar/forego
 
-# Set up some environment
-ENV HOME /root
-ENV DOTFILES_PATH $HOME/dotfiles
-ENV DOCKER_HOST 'unix:///var/run/docker.sock'
+# Set up some environment for SSH clients (ENV statements have no affect on ssh clients)
+RUN echo "export DOCKER_HOST='unix:///var/run/docker.sock'" >> /etc/profile
 
 # Set shell to zsh
 RUN usermod -s /usr/bin/zsh root
 
 # Add actual config
 ADD docker_runtime/entry.sh /usr/local/bin/entry_point
+
+ENV DOTFILES_PATH /root/.dotfiles
 ADD . $DOTFILES_PATH
 RUN cd $DOTFILES_PATH \
- && $DOTFILES_PATH/link.sh
+ && $DOTFILES_PATH/link.sh \
  && $DOTFILES_PATH/setup.sh
 
-ENV PATH $HOME/.local/bin:$PATH
-ENV SHELL /usr/bin/zsh
 WORKDIR /
 VOLUME ["/root/code"]
 CMD ["/usr/local/bin/entry_point"]

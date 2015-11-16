@@ -1,0 +1,3 @@
+.git
+*.so
+vim/bundle/ctrlp-cmatcher/autoload/build
