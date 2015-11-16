@@ -29,8 +29,8 @@ set nocompatible
 
 	set colorcolumn=80,100 " Show lines on 80 and 100 chars
 
-	set list
-	set listchars=eol:◁,tab:»\ ,trail:·,nbsp:␣
+	" set list
+	" set listchars=eol:◁,tab:»\ ,trail:·,nbsp:␣
 " }
 
 " Colors {
