@@ -63,12 +63,12 @@ RUN cd /tmp \
  && rm /tmp/go.tgz
 
 ENV GOROOT $PREFIX/go
-RUN echo "export GOROOT=$GOROOT" >> /etc/profile
+RUN echo "export GOROOT=$GOROOT" >> /root/.profile
 ENV GOPATH /root/gopath
-RUN echo "export GOPATH=$GOPATH" >> /etc/profile
+RUN echo "export GOPATH=$GOPATH" >> /root/.profile
 RUN mkdir -p $GOPATH
 ENV PATH $PREFIX/go/bin:$PATH
-RUN echo "export PATH=$GOPATH/bin:$GOROOT/bin:\$PATH" >> /etc/profile
+RUN echo "export PATH=$GOPATH/bin:$GOROOT/bin:\$PATH" >> /root/.profile
 
 # Install VIM
 RUN apt-get install -y \
@@ -128,8 +128,22 @@ RUN go get -u -v github.com/goodguide/goodguide-git-hooks
 # install forego
 RUN go get -u -v github.com/ddollar/forego
 
+# install jq 1.5
+ADD docker_runtime/gpg/jq_signing.key.pub.asc /tmp/
+RUN curl -fsSL -o /tmp/jq https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 \
+ && curl -fsSL -o /tmp/jq.sig.asc https://raw.githubusercontent.com/stedolan/jq/master/sig/v1.5/jq-linux64.asc \
+ && gpg --import /tmp/jq_signing.key.pub.asc \
+ && gpg --verify /tmp/jq.sig.asc /tmp/jq \
+ && install /tmp/jq $PREFIX/bin/jq \
+ && rm /tmp/jq /tmp/jq.sig.asc /tmp/jq_signing.key.pub.asc
+
+# install AWS CLI
+RUN apt-get install -y python-pip \
+ && apt-get clean \
+ && pip install awscli
+
 # Set up some environment for SSH clients (ENV statements have no affect on ssh clients)
-RUN echo "export DOCKER_HOST='unix:///var/run/docker.sock'" >> /etc/profile
+RUN echo "export DOCKER_HOST='unix:///var/run/docker.sock'" >> /root/.profile
 
 # Set shell to zsh
 RUN usermod -s /usr/bin/zsh root
@@ -143,6 +157,5 @@ RUN cd $DOTFILES_PATH \
  && $DOTFILES_PATH/link.sh \
  && $DOTFILES_PATH/setup.sh
 
-WORKDIR /
-VOLUME ["/root/code"]
+WORKDIR /root
 CMD ["/usr/local/bin/entry_point"]
