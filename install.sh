@@ -2,6 +2,8 @@
 # vim: set noexpandtab tabstop=4 softtabstop=4 shiftwidth=4:
 set -e -u
 
+{ # these braces ensure the script is fully downloaded before evaluation starts
+
 if [[ ${DOTFILES_PATH:-unset} == 'unset' ]]; then
 	export DOTFILES_PATH="$HOME/.dotfiles"
 fi
@@ -24,3 +26,5 @@ echo -e "\n[ link.sh ]\n"
 
 echo -e "\n[ setup.sh ]\n"
 ./setup.sh
+
+}
